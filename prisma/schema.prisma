@@ -29,9 +29,15 @@ enum SubscriptionType {
   Pro
 }
 
-// ---------------------------
+enum ConversationType {
+  ONE_TO_ONE
+  PROJECT
+  GROUP
+  BOND_LINK
+  INSTITUTION
+}
+
 // User model
-// ---------------------------
 model User {
   id                String    @id @default(auto()) @map("_id") @db.ObjectId
   profileId         String?   @default("")
@@ -49,8 +55,10 @@ model User {
   appleId           String?
   googleId          String?
 
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
   normalUser NormalUser?
   superAdmin SuperAdmin?
   admin      Admin?
@@ -73,12 +81,12 @@ model NormalUser {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // Relationships
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("normalusers")
+  // Relations
+  user     User      @relation(fields: [userId], references: [id])
+  messages Message[]
 }
 
+// SuperAdmin model
 model SuperAdmin {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   userId        String   @unique @db.ObjectId
@@ -95,6 +103,7 @@ model SuperAdmin {
   @@map("superadmins")
 }
 
+// Admin model
 model Admin {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   userId        String   @unique @db.ObjectId
@@ -107,4 +116,37 @@ model Admin {
 
   // Relations 
   user User @relation(fields: [userId], references: [id])
+}
+
+// Message model
+model Message {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  text           String
+  imageUrl       String[]
+  msgByUserId    String       @db.ObjectId
+  sender         NormalUser   @relation(fields: [msgByUserId], references: [id])
+  conversationId String       @db.ObjectId
+  conversation   Conversation @relation("ConversationMessages", fields: [conversationId], references: [id])
+  seen           Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+
+  // Relation for lastMessage (reverse side)
+  lastMessageInConversation Conversation[] @relation("LastMessage")
+}
+
+// Conversation model
+model Conversation {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  participants String[] @db.ObjectId // array of NormalUser IDs (manually managed)
+
+  lastMessageId String?  @db.ObjectId
+  lastMessage   Message? @relation("LastMessage", fields: [lastMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  type ConversationType @default(ONE_TO_ONE)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages Message[] @relation("ConversationMessages")
 }

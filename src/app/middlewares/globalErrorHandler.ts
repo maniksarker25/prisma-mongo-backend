@@ -3,12 +3,7 @@ import httpStatus from "http-status";
 import { ZodError } from "zod";
 import AppError from "../error/appError";
 
-const globalErrorHandler = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
   let statusCode = 500;
   let message = "Something went wrong";
   let errorMessage = "";
