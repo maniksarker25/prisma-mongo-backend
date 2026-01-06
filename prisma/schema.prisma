@@ -130,7 +130,6 @@ model Message {
   seen           Boolean      @default(false)
   createdAt      DateTime     @default(now())
 
-  // Relation for lastMessage (reverse side)
   lastMessageInConversation Conversation[] @relation("LastMessage")
 }
 
@@ -138,7 +137,7 @@ model Message {
 model Conversation {
   id String @id @default(auto()) @map("_id") @db.ObjectId
 
-  participants String[] @db.ObjectId // array of NormalUser IDs (manually managed)
+  participants String[] @db.ObjectId
 
   lastMessageId String?  @db.ObjectId
   lastMessage   Message? @relation("LastMessage", fields: [lastMessageId], references: [id], onDelete: NoAction, onUpdate: NoAction)
