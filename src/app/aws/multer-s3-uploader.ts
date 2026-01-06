@@ -5,9 +5,6 @@ import { Request } from "express";
 import multer from "multer";
 import multerS3 from "multer-s3";
 
-/**
- * Configure and setup AWS S3 client
- */
 const s3 = new S3Client({
   region: process.env.AWS_REGION || "us-east-1",
   credentials: {
@@ -16,9 +13,6 @@ const s3 = new S3Client({
   },
 });
 
-/**
- * Setup file upload to AWS S3
- */
 export const uploadFile = () => {
   const fileFilter = (req: Request, file: any, cb: any) => {
     const allowedFieldnames = [
@@ -102,7 +96,6 @@ export const uploadFile = () => {
     key: function (req, file, cb) {
       let uploadPath = "";
 
-      // Maintain the same folder structure as before
       if (file.fieldname === "profile_image") {
         uploadPath = "uploads/images/profile";
       } else if (file.fieldname === "category_image") {
@@ -153,7 +146,6 @@ export const uploadFile = () => {
         uploadPath = "uploads";
       }
 
-      // Sanitize the filename just like in the original code
       const sanitizedOriginalName = file.originalname.replace(/\s+/g, "_").replace(/[^\w.-]+/g, "");
 
       const name = Date.now() + "-" + sanitizedOriginalName;
