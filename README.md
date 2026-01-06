@@ -1,4 +1,4 @@
-- # Flat Share Application
+- # Prima Mongodb Template
 - Make a prima mongodb tamplate for developers
 
 - ## Technology used
