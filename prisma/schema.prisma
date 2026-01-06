@@ -1,0 +1,110 @@
+// datasource and generator setup
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ---------------------------
+// Enums
+// ---------------------------
+enum UserRole {
+  user
+  admin
+  superAdmin
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum SubscriptionType {
+  Free
+  Premium
+  Pro
+}
+
+// ---------------------------
+// User model
+// ---------------------------
+model User {
+  id                String    @id @default(auto()) @map("_id") @db.ObjectId
+  profileId         String?   @default("")
+  email             String    @unique
+  password          String
+  passwordChangedAt DateTime?
+  role              UserRole
+  isBlocked         Boolean   @default(false)
+  isActive          Boolean   @default(true)
+  verifyCode        Int?
+  resetCode         Int?
+  isVerified        Boolean   @default(false)
+  isResetVerified   Boolean   @default(false)
+  codeExpireIn      DateTime?
+  appleId           String?
+  googleId          String?
+
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  normalUser NormalUser?
+  superAdmin SuperAdmin?
+  admin      Admin?
+
+  @@map("users")
+}
+
+// NormalUser model
+model NormalUser {
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String    @unique @db.ObjectId
+  name          String
+  email         String    @unique
+  phone         String?
+  profile_image String?   @default("")
+  gender        Gender?
+  dateOfBirth   DateTime?
+  address       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("normalusers")
+}
+
+model SuperAdmin {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @unique @db.ObjectId
+  name          String
+  email         String   @unique
+  phone         String?
+  profile_image String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("superadmins")
+}
+
+model Admin {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String   @unique @db.ObjectId
+  name          String
+  email         String   @unique
+  phone         String?
+  profile_image String?  @default("")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now())
+
+  // Relations 
+  user User @relation(fields: [userId], references: [id])
+}
